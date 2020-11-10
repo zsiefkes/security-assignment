@@ -1,8 +1,15 @@
 Current task:
+- choose a way to set out the string that the client sends, so that it encodes its id in there too
 
 Task list:
-- create threadedServer that will return just the date and also write date to db. communicate using telnet
-- add client to retrieve date
+completed:
+	- create threadedServer that will return just the date and also write date to db. communicate using telnet
+	- add client to retrieve date.
+	- client sends a string to the server, server reads string and writes to db. holy motherfucking shit it worked ahahaha!!!!
+to do:
+- choose a way to set out the string that the client sends, so that it encodes its id in there too
+- create table in db that includes client id, task, and why not timestamp
+- bring above two together. client sends its id and task, server writes these to the db.
 
 
 come up with a protocol to represent :

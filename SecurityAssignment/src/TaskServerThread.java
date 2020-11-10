@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.Connection;
@@ -15,11 +17,28 @@ public class TaskServerThread extends Thread {
 	@Override
 	public void run() {
 		try {
+			// need code in here to actually um parse something incoming from client
+			// just do the opposite direction to what the client was doing accepting stuff from the server. input stream
+			// okay so the socket already exists, the um. the taskserver creates it and instantiates the thread with it. so don't need this line
+//	        Socket s = new Socket(serverAddress, port);
+			
+			// we want to read the input:
+	        BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+	        String answer = input.readLine();
+	        //JOptionPane.showMessageDialog(null, answer);
+	        System.out.println(answer);
+	        // need to parse the stuff.
+	        // not sure what this does here ....
+//	        System.exit(0);
+	        // don't close the socket yet! do we?
+//	        s.close();
+			
+			
 			PrintWriter writeToSocket = new PrintWriter(socket.getOutputStream(), true);
 			System.out.println("A client request received at " + socket);
 			String ts = new java.util.Date().toString();
-			writeToSocket.println(ts);
-			insertTimeStampIntoDB(ts);
+			writeToSocket.println(ts + "; " + answer);
+			insertTimeStampIntoDB(ts + "; "+ answer);
 			socket.close();
 		} catch (IOException e) {
 			System.out.println("Error: " + e);
