@@ -1,0 +1,61 @@
+Current task:
+
+Task list:
+- create threadedServer that will return just the date and also write date to db. communicate using telnet
+- add client to retrieve date
+
+
+come up with a protocol to represent :
+
+1. client asks server to save data (a task)
+2. client asks server to send list of their tasks
+
+also, client awaits the list being returned to them...
+
+send this info from client to server using an encrypted, delimited string. 
+also send back from server to client using encrypted, delimited string.
+
+generate a key at the start and save it to a file, to be used by both server and client. this is fine.
+don't need to check for valid input or valid users? this is extra
+gui would be LAST STEP
+
+classes:
+
+DES? with
+	encrypt
+	decrypt
+
+Client
+	- when we create an instance of this... do we assign a unique id to the class instance?
+	- functionality to send a task to be written
+	- retrieve all client tasks
+	- establish socket connection, write to the socket
+
+TaskServer
+	- need to be able to sign up a client! this should come after I get it working for a hardcoded client. yes
+	- accept incoming connection, start thread parse incoming data, 
+	
+TaskServerThread
+	- parse incoming data
+	- 1. write client task to db
+		- need to 
+	- 2. retrieve list of client tasks from db
+		- select * from tasks where client id = blah
+	
+
+The Assessment: Cloud and Security
+You are to develop a task logger application that uses the client-server model (i.e. Using Socket Programming). The details of the task are to be elicited from the following rubrics.
+C Grade
+Send task details to the server by the client application.
+The ability of the client to pull task details from the server
+B Garde
+In addition to the requirements of the C grade, a threaded server that can serve multiple clients and messages are encrypted using Caesar cipher.
+B+ Grade
+In addition to the requirements of the B grade, each client has a unique ID/Name, data is stored into the database by the client ID/Name, and the client can only pull its own tasks from the server.
+A-/A
+In addition to the requirements of the B+ grade, build a GUI that allows the user to configure the client to connect to any server IP.
+A+
+In addition to the requirements of the A-/A grade, anything else beyond the previous requirement should be counted towards the A+ grade. For example:
+A login screen at the client-side and the ability of the server to log the outcome of all transactions.
+Messages are sent encrypted using DES/AES. It is fine to manually exchange the key (i.e. just copy the key files on both server and client)
+Deploying the server application on your EC2 instance.
