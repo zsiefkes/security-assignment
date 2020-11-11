@@ -42,7 +42,17 @@ public class Client {
 //		socket.close();
 	}
 	
-	public void readTasks() {
+	public void readTasks() throws IOException {
+		// print read command to socket
+		PrintWriter writeToSocket = new PrintWriter(socket.getOutputStream(), true);
+		String toSend = clientId + "; READ; ";
+		writeToSocket.println(toSend);
+		
+		// read response
+		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		String answer = input.readLine();
+		System.out.println(answer);
+		System.exit(0);
 		
 	}
 	
@@ -50,6 +60,7 @@ public class Client {
     public static void main(String[] args) throws IOException {
     	// i want to see something from the client be read by the server
     	Client client = new Client("127.0.0.1", 9090);
-    	client.createTask("Hello world!");
+//    	client.createTask("Test task");
+    	client.readTasks();
     }
 }
