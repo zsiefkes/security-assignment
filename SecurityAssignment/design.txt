@@ -1,22 +1,23 @@
 Current task:
-- choose a way to set out the string that the client sends, so that it encodes its id in there too and also the command!! whether to write a task: "CREATE", or retrieve list of tasks: "READ"
-- create table in db that includes client id, task, and why not timestamp
-- bring above two together. client sends its id and task, server writes these to the db.
+	- server encrypts message to send back to client. (including the task list, which will also be delimited by semicolons)
+	- client decrypts message from server, prints to console
 
 Task list:
 completed:
 	- create threadedServer that will return just the date and also write date to db. communicate using telnet
 	- add client to retrieve date.
 	- client sends a string to the server, server reads string and writes to db. holy motherfucking shit it worked ahahaha!!!!
+	- choose a way to set out the string that the client sends, so that it encodes its id in there too and also the command!! whether to write a task: "CREATE", or retrieve list of tasks: "READ"
+	- create table in db that includes client id, task, and why not timestamp
+	- bring above two together. client sends its id and task, server writes these to the db.
+	- again, can't fuckin believe it worked :D :D :D :D
+	- client requests tasks from server and gets 'em
+	- don't forget about encryption! using symmetric key.
+	- client encrypts message before sending to server
+	- server decrypts message, writes to db HOLY FUCKIN SHIT IT WORKS :O
 to do:
-- choose a way to set out the string that the client sends, so that it encodes its id in there too and also the command!! whether to write a task: "CREATE", or retrieve list of tasks: "READ"
-- create table in db that includes client id, task, and why not timestamp
-- bring above two together. client sends its id and task, server writes these to the db.
-- don't forget about encryption! using symmetric key.
-- client encrypts message before sending to server
-- server decrypts message, writes to db
-- server encrypts message to send back to client. (including the task list, which will also be delimited by semicolons)
-- client decrypts message from server, prints to console
+- clients need to be saved to the database, too. argh. create a table for clients. easy, they just need their client id and a password, I don't think
+
 - i think after this you can pretty much starting making the gui. so that we can have separate clients that log in from the gui,
 	- server saving client details to client table in db. maybe um ... encrypt their password!
 	- login screen

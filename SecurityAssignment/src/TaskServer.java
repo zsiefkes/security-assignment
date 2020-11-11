@@ -2,10 +2,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 //import java.util.Date;
+import java.security.NoSuchAlgorithmException;
 
 public class TaskServer {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, ClassNotFoundException {
         int port = 9090;
         ServerSocket listener = new ServerSocket(port);
         System.out.println("Server started on " + port);
