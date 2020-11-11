@@ -66,20 +66,21 @@ public class TaskServerThread extends Thread {
 	        	
 	        } else if (codedArray[1].equals("READ")) {
 	        	
-	        	// run a query
+	        	// query database for task list
 	        	String taskList = readTasksFromDB(clientId);
+//	        	System.out.println("Tasks: " + taskList);
 	        	
-//	        	// encrypt task list
-//	        	byte[] toSend = crypt.encrypt(taskList);
-//	        	
-//	        	// send encrypted object to client
-//	        	DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
-//	    		
-//	    		dataOut.writeInt(toSend.length); // write length of the message
-//	    		dataOut.write(toSend);           // write the message
+	        	// encrypt task list
+	        	byte[] toSend = crypt.encrypt(taskList);
 	        	
-	        	// send back to the client
-	        	writeToSocket.println("Client " + clientId + " tasks: " + taskList);
+	        	// send encrypted object to client
+	        	DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
+	    		
+	    		dataOut.writeInt(toSend.length); // write length of the message
+	    		dataOut.write(toSend);           // write the message
+	        	
+//	        	// send back to the client
+//	        	writeToSocket.println("Client " + clientId + " tasks: " + taskList);
 	        	
 	        } else {
 	        	// send back to client faulty command message
@@ -130,6 +131,7 @@ public class TaskServerThread extends Thread {
 				taskList += results.getString("task") + "; ";
 			}
 			
+//			System.out.println("Tasks: " + taskList);
 			// close db connection and return tasklist
 			connection.close();
 			return taskList;

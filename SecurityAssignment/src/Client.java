@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -40,26 +41,16 @@ public class Client {
 		 * eg. "1; CREATE; File tax return";
 		 * eg. "4; READ; "
 		 */
+		
+		// create and encrypt command string
 		String toSend = clientId + "; CREATE; " + task;
-		
-		
-		// encrypt the thing
 		byte[] encText = crypt.encrypt(toSend);            
-//		System.out.println("The DES encrypted message 64: "+ (Base64.getEncoder().encodeToString(encText)));
-//		System.out.println("Using String.valueOf: " + String.valueOf(encText)); // yeah, these be different.
-		
-		// open socket for writing to
-//		PrintWriter writeToSocket = new PrintWriter(socket.getOutputStream(), true);
 		
 		// we actually need to treat the socket differently so that we can send um a byte array...
 		DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
 		
 		dataOut.writeInt(encText.length); // write length of the message
 		dataOut.write(encText);           // write the message
-		
-		// whoa you can "print" a byte array? according to the docs it first calls String.valueOf(Object)  
-//		writeToSocket.println(encText);
-//		writeToSocket.println
 		
 		// and now wait for a response...
 		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -69,20 +60,45 @@ public class Client {
 //		socket.close();
 	}
 	
-	public void readTasks() throws IOException {
-		// print read command to socket
-		PrintWriter writeToSocket = new PrintWriter(socket.getOutputStream(), true);
-		String toSend = clientId + "; READ; ";
-		writeToSocket.println(toSend);
+	public void readTasks() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+		// create and encrypt command string
+		String message = clientId + "; READ; ";
+		byte[] toSend = crypt.encrypt(message);
 		
-		// read response
-		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-		String answer = input.readLine();
+		// we actually need to treat the socket differently so that we can send um a byte array...
+		DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
+		dataOut.writeInt(toSend.length); // write length of the message
+		dataOut.write(toSend);           // write the message
 		
-		// decrypt the thing
+		// handle incoming response from server
+		DataInputStream dataIn = new DataInputStream(socket.getInputStream());
 		
-		System.out.println(answer);
-		System.exit(0);
+		int length = dataIn.readInt(); // read length of incoming message
+		System.out.println("length of response: " + length);
+		byte[] response;
+		String decrypted;
+		if(length > 0) {
+		    response = new byte[length];
+		    // read the message
+		    dataIn.read(response);
+		    // decrypt the data
+		    decrypted = crypt.decrypt(response);
+		    
+		    // parse the decrypted task list
+		    String[] taskList = decrypted.split("; ");
+		    
+		    System.out.println("task list: ");
+		    for (String s : taskList) {
+		    	System.out.println(s);
+		    }
+		    
+		} else {
+			System.out.println("error no data received");
+			return;
+		}
+		
+//		System.out.println(answer);
+//		System.exit(0);
 		
 	}
 	
@@ -90,8 +106,8 @@ public class Client {
     public static void main(String[] args) {
     	try {
     		Client client = new Client("127.0.0.1", 9090);
-    		client.createTask("Test task 3");
-//    		client.readTasks();
+//    		client.createTask("Test task 3");
+    		client.readTasks();
 		} catch (Exception e) {
 			System.out.println("Error: " + e);
 		}
