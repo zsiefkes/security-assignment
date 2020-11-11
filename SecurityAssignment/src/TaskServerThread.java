@@ -50,7 +50,8 @@ public class TaskServerThread extends Thread {
 	        
 	        // read client id and parse incoming command
 	        String[] codedArray = decrypted.split("; ");
-	        int clientId = Integer.parseInt(codedArray[0]);
+//	        int clientId = Integer.parseInt(codedArray[0]);
+	        String username = codedArray[0];
 
 	        if (codedArray[1].equals("CREATE")) {
 	        	
@@ -59,15 +60,15 @@ public class TaskServerThread extends Thread {
 	        	String timeStamp = new java.util.Date().toString();
 	        	
 	        	// write task to db
-	        	writeTaskToDB(clientId, task, timeStamp);
+	        	writeTaskToDB(username, task, timeStamp);
 	        	
 	        	// send message back to client
-	        	writeToSocket.println("Client " + clientId + " entered task: " + task + " at " + timeStamp);
+	        	writeToSocket.println("Client " + username + " entered task: " + task + " at " + timeStamp);
 	        	
 	        } else if (codedArray[1].equals("READ")) {
 	        	
 	        	// query database for task list
-	        	String taskList = readTasksFromDB(clientId);
+	        	String taskList = readTasksFromDB(username);
 //	        	System.out.println("Tasks: " + taskList);
 	        	
 	        	// encrypt task list
@@ -113,14 +114,15 @@ public class TaskServerThread extends Thread {
 		return connection;
 	}
 	
-	public String readTasksFromDB(int clientId) {
+	public String readTasksFromDB(String username) {
 		try {
 			Connection connection = connectToDB();
 			
 			// prepare sql query
 			Statement s = connection.createStatement();
 			String tableName = "tasks";
-			String sqlCommand = "SELECT task FROM " + tableName + " WHERE client_id = " + clientId;
+			String sqlCommand = "SELECT task FROM " + tableName + " WHERE username = '" + username + "'";
+			// don't forget to add single quotation marks around the username!
 			
 			// execute query
 			ResultSet results = s.executeQuery(sqlCommand);
@@ -144,14 +146,14 @@ public class TaskServerThread extends Thread {
 		
 	}
 
-	public void writeTaskToDB(int clientId, String task, String timeStamp) {
+	public void writeTaskToDB(String username, String task, String timeStamp) {
 		try {
 			Connection connection = connectToDB();
 			
 			// prepare sql command
 			Statement s = connection.createStatement();
 			String tableName = "tasks";
-			String sqlCommand = "insert into " + tableName + " values (" + clientId + ", '" + task + "', '" + timeStamp + "')";
+			String sqlCommand = "insert into " + tableName + " values ('" + username + "', '" + task + "', '" + timeStamp + "')";
 			
 			// execute command
 			s.executeUpdate(sqlCommand);

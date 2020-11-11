@@ -1,5 +1,8 @@
 Current task:
 - clients need to be saved to the database, too. argh. create a table for clients. easy, they just need their client id and a password, I don't think
+- okay I made a mess of this. taking a step back....
+- let's let clients sign up with a username, and we'll ask the database to please ensure the username is unique.
+ 
 
 Task list:
 completed:

@@ -18,20 +18,22 @@ import javax.crypto.NoSuchPaddingException;
 
 public class Client {
 
-	private int clientId;
+//	private int clientId;
+	private String username;
 	private Socket socket;
 	private Crypt crypt;
 	private String keyFileName = "session-key"; 
 
 	private static ArrayList<Client> clientList = new ArrayList<Client>(); 
 	
-	public Client(String serverAddress, int port) throws UnknownHostException, IOException, NoSuchAlgorithmException, ClassNotFoundException {
+	public Client(String username, String serverAddress, int port) throws UnknownHostException, IOException, NoSuchAlgorithmException, ClassNotFoundException {
 		// set client socket and crypt with hardcoded symmetric key filename
 		this.socket = new Socket(serverAddress, port);
 		this.crypt = new Crypt(keyFileName);
-		// assign unique client id and add Client to list of Clients
-		this.clientId = clientList.size() + 1;
-		clientList.add(this);
+		this.username = username;
+//		// assign unique client id and add Client to list of Clients
+//		this.clientId = clientList.size() + 1;
+//		clientList.add(this);
 	}
 	
 	public void createTask(String task) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
@@ -43,7 +45,7 @@ public class Client {
 		 */
 		
 		// create and encrypt command string
-		String toSend = clientId + "; CREATE; " + task;
+		String toSend = username + "; CREATE; " + task;
 		byte[] encText = crypt.encrypt(toSend);            
 		
 		// we actually need to treat the socket differently so that we can send um a byte array...
@@ -55,14 +57,14 @@ public class Client {
 		// and now wait for a response...
 		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		String answer = input.readLine();
-		System.out.println(answer);
+//		System.out.println(answer);
 		System.exit(0);
 //		socket.close();
 	}
 	
 	public void readTasks() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		// create and encrypt command string
-		String message = clientId + "; READ; ";
+		String message = username + "; READ; ";
 		byte[] toSend = crypt.encrypt(message);
 		
 		// we actually need to treat the socket differently so that we can send um a byte array...
@@ -74,7 +76,7 @@ public class Client {
 		DataInputStream dataIn = new DataInputStream(socket.getInputStream());
 		
 		int length = dataIn.readInt(); // read length of incoming message
-		System.out.println("length of response: " + length);
+//		System.out.println("length of response: " + length);
 		byte[] response;
 		String decrypted;
 		if(length > 0) {
@@ -105,9 +107,9 @@ public class Client {
 	
     public static void main(String[] args) {
     	try {
-    		Client client = new Client("127.0.0.1", 9090);
-//    		client.createTask("Test task 3");
-    		client.readTasks();
+    		Client client = new Client("testuser", "127.0.0.1", 9090);
+//    		client.createTask("Test task 1");
+//    		client.readTasks();
 		} catch (Exception e) {
 			System.out.println("Error: " + e);
 		}
