@@ -1,5 +1,7 @@
 Current task:
-- choose a way to set out the string that the client sends, so that it encodes its id in there too
+- choose a way to set out the string that the client sends, so that it encodes its id in there too and also the command!! whether to write a task: "CREATE", or retrieve list of tasks: "READ"
+- create table in db that includes client id, task, and why not timestamp
+- bring above two together. client sends its id and task, server writes these to the db.
 
 Task list:
 completed:
@@ -7,9 +9,18 @@ completed:
 	- add client to retrieve date.
 	- client sends a string to the server, server reads string and writes to db. holy motherfucking shit it worked ahahaha!!!!
 to do:
-- choose a way to set out the string that the client sends, so that it encodes its id in there too
+- choose a way to set out the string that the client sends, so that it encodes its id in there too and also the command!! whether to write a task: "CREATE", or retrieve list of tasks: "READ"
 - create table in db that includes client id, task, and why not timestamp
 - bring above two together. client sends its id and task, server writes these to the db.
+- don't forget about encryption! using symmetric key.
+- client encrypts message before sending to server
+- server decrypts message, writes to db
+- server encrypts message to send back to client. (including the task list, which will also be delimited by semicolons)
+- client decrypts message from server, prints to console
+- i think after this you can pretty much starting making the gui. so that we can have separate clients that log in from the gui,
+	- server saving client details to client table in db. maybe um ... encrypt their password!
+	- login screen
+	- use the code you had in the um student management project to switch between scenes after logging in  
 
 
 come up with a protocol to represent :
