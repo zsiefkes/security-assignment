@@ -117,17 +117,6 @@ public class Crypt {
         return byteCipherText;
     }
     
-//    public String decrypt (byte[] strCipherText) throws 
-//    NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, 
-//    InvalidAlgorithmParameterException, IllegalBlockSizeException, 
-//    BadPaddingException
-//    {        
-//    	Cipher desCipher = Cipher.getInstance("DES"); // Must specify the mode explicitly as most JCE providers default to ECB mode!!				
-//    	desCipher.init(Cipher.DECRYPT_MODE, this.getSecretkey());        
-//    	byte[] byteDecryptedText = desCipher.doFinal(strCipherText);        
-//    	return new String(byteDecryptedText);
-//    }   
-//    
     public String decrypt (byte[] strCipherText) throws 
             NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, 
             InvalidAlgorithmParameterException, IllegalBlockSizeException, 

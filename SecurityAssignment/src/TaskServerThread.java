@@ -82,7 +82,30 @@ public class TaskServerThread extends Thread {
 	        	
 //	        	// send back to the client
 //	        	writeToSocket.println("Client " + clientId + " tasks: " + taskList);
+	        } else if (codedArray[1].equals("REGISTER")) {
+//	        	// encrypt the password
+//	        	byte[] encryptedPassword = passwordCrypt.encrypt(codedArray[2]);
+//	        	
+//	        	// add client to database
+//	        	clientId = Integer.parseInt(registerUser(encryptedPassword));
+	        	String password = codedArray[2];
+	        	registerUser(username, password);
 	        	
+	        	String toSendString = "Client " + username + " successfully registered.";
+	        	byte[] toSend = crypt.encrypt(toSendString);
+	        	
+	        	// send encrypted object to client
+	        	DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
+	    		
+	    		dataOut.writeInt(toSend.length); // write length of the message
+	    		dataOut.write(toSend);           // write the message
+	        	
+
+	        } else if (codedArray[1].equals("LOGIN")) {
+	        	
+	        	
+	        	
+
 	        } else {
 	        	// send back to client faulty command message
 	        	writeToSocket.println("Command error; please provide CREATE or READ");
@@ -144,6 +167,27 @@ public class TaskServerThread extends Thread {
 			return "";
 		}
 		
+	}
+	public void registerUser(String username, String password) {
+		try {
+			Connection connection = connectToDB();
+			
+			// prepare sql command
+			Statement s = connection.createStatement();
+			String tableName = "clients";
+			String sqlCommand = "insert into " + tableName + " values ('" + username + "', '" + password + "')";
+			s.executeUpdate(sqlCommand);
+
+//			ResultSet results = ps.getResultSet();
+//			System.out.println("results: " + results);
+//			return results.toString();
+//			connection.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error: " + e.toString());
+//			return "";
+		}
+
 	}
 
 	public void writeTaskToDB(String username, String task, String timeStamp) {

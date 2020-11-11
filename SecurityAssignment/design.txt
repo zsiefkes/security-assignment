@@ -25,6 +25,7 @@ completed:
 		- server->client, respond with error message? ##NOT DONE
 	- server encrypts message to send back to client. (including the task list, which will also be delimited by semicolons)
 	- client decrypts message from server, prints to console
+	- clients have unique usernames and are stored with unique usernames in database. instead of client ids
 	
 to do:
 
