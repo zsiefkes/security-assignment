@@ -105,7 +105,7 @@ public class Client {
 	}
 	
 	// register username and password with the server
-	public void registerUser(String password) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	public boolean registerUser(String password) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		// encrypt username and password to send to server
 		String toSend = username + "; REGISTER; " + password;
 		byte[] encText = crypt.encrypt(toSend);       
@@ -134,13 +134,60 @@ public class Client {
 		    dataIn.read(response);
 		    // decrypt the data
 		    decrypted = crypt.decrypt(response);
-		    
+		    // add some logic here - a response starting with 1 returns true, starting with 0 or otherwise returns false
 		    System.out.println(decrypted);
-//		    // parse the decrypted task list
-//		    String[] taskList = decrypted.split("; ");
+		    if (decrypted.charAt(0) == '1') {
+		    	return true;
+		    } else {
+		    	return false;
+		    }
+
+		} else {
+			return false;
 		}
 	}
 	
+	public boolean loginUser(String username, String password) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
+		// encrypt username and password to send to server
+		String toSend = username + "; LOGIN; " + password;
+		byte[] encText = crypt.encrypt(toSend);       
+		
+		DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
+		
+		dataOut.writeInt(encText.length); // write length of the message
+		dataOut.write(encText);           // write the message
+		
+		// and now wait for a response...
+//				BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//				String answer = input.readLine();
+//				
+//				System.out.println(answer);
+//				System.exit(0);
+		// handle incoming response from server
+		DataInputStream dataIn = new DataInputStream(socket.getInputStream());
+		
+		int length = dataIn.readInt(); // read length of incoming message
+//						System.out.println("length of response: " + length);
+		byte[] response;
+		String decrypted;
+		if(length > 0) {
+		    response = new byte[length];
+		    // read the message
+		    dataIn.read(response);
+		    // decrypt the data
+		    decrypted = crypt.decrypt(response);
+		    // add some logic here - a response starting with 1 returns true, starting with 0 or otherwise returns false
+		    System.out.println(decrypted);
+		    if (decrypted.charAt(0) == '1') {
+		    	return true;
+		    } else {
+		    	return false;
+		    }
+
+		} else {
+			return false;
+		}
+	}
 	
     public static void main(String[] args) {
     	try {

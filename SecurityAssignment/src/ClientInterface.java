@@ -22,6 +22,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -52,27 +53,29 @@ public class ClientInterface extends Application {
 	// ---------- javafx nodes ---------------- //
 	
 	// register
-	private VBox registerPane;
+	private HBox registerPane;
 	private Button registerButton;
-	private String registerInstructionString = "Please enter a username and password and hit register.";
+	private String registerInstructionString = "Please enter a username and password to login or register.";
 	private Text registerText;
 	private TextField registerUsernameField;
 	private PasswordField registerPasswordField;
 
 	// login
-	private Pane loginPane;
+	private HBox loginPane;
 	private Button loginButton;
-	private TextField loginClientIdField;
-	private TextField loginPasswordField;
+	private TextField loginUsernameField;
+	private PasswordField loginPasswordField;
 	
 	// client dashboard
 	private TextField newTaskField;
 	private Button submitTaskButton;
 	private Button retrieveTasksButton;
 	private Text taskList;
+	private VBox clientDashboard;
+	private Scene dashboardScene;
 	
 	// main window
-	private VBox mainPane;
+	private VBox welcomePane;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
@@ -84,24 +87,38 @@ public class ClientInterface extends Application {
 		registerUsernameField = new TextField();
 		registerPasswordField = new PasswordField();
 		registerButton = new Button("Register");
-		registerPane = new VBox();
-		registerPane.getChildren().addAll(registerText, registerUsernameField, registerPasswordField, registerButton);
+		registerPane = new HBox();
+		registerPane.getChildren().addAll(registerUsernameField, registerPasswordField, registerButton);
 		
 		loginButton = new Button("Login");
-		loginClientIdField = new TextField();
-		loginPasswordField = new TextField();
+		loginUsernameField = new TextField();
+		loginPasswordField = new PasswordField();
+		loginPane = new HBox();
+		loginPane.getChildren().addAll(loginUsernameField, loginPasswordField, loginButton);
 		
-		mainPane = new VBox();
-		mainPane.getChildren().addAll();
-		mainPane.setAlignment(Pos.CENTER);
+		welcomePane = new VBox();
+		welcomePane.getChildren().addAll(registerText, registerPane, loginPane);
+		welcomePane.setAlignment(Pos.CENTER);
 //		pane.setPadding(new Insets(20, 20, 20, 20));
+		
+		// client dashboard
+		newTaskField = new TextField();
+		submitTaskButton = new Button("Add task");
+		retrieveTasksButton = new Button("View all tasks");
+		taskList = new Text("Task List:");
+		clientDashboard = new VBox();
+		clientDashboard.getChildren().addAll(newTaskField, submitTaskButton, retrieveTasksButton, taskList);
+		dashboardScene = new Scene(clientDashboard, width, height);
 		
 		// -------------------------- set button event listeners --------------------------------- //
 		registerButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
 				try {
-					registerUser();
+					boolean registerTrue = registerUser();
+					if (registerTrue) {
+						primaryStage.setScene(dashboardScene);
+					}
 				} catch (IOException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -111,21 +128,31 @@ public class ClientInterface extends Application {
 		loginButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent arg0) {
-				loginUser();
+				try {
+					boolean loginTrue = loginUser();
+					if (loginTrue) {
+						primaryStage.setScene(dashboardScene);
+					}
+				} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+						| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
+						| IOException | ClassNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		});
 		
-//		mainPane.getChildren().add(e)
-		Scene registerScene = new Scene(registerPane, width, height);
+//		welcomePane.getChildren().add(e)
+		Scene welcomeScene = new Scene(welcomePane, width, height);
 		
-		Scene scene = new Scene(mainPane, width, height);
+//		Scene scene = new Scene(welcomePane, width, height);
 		primaryStage.setTitle("Task Client");
 //		primaryStage.setScene(scene);
-		primaryStage.setScene(registerScene);
+		primaryStage.setScene(welcomeScene);
 		primaryStage.show();
 	}
 
-	private void registerUser() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException {
+	private boolean registerUser() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException {
 		// read username and password
 		String username = registerUsernameField.getText();
 		String password = registerPasswordField.getText();
@@ -134,26 +161,46 @@ public class ClientInterface extends Application {
 		if (password.length() < 3) {
 			// display some kind of error message
 
-			return;
+			return false;
 		} else if (username.length() < 1) {
 			// display some kind of error message
 			
-			return;
+			return false;
 		}
 		
 		// do we create an instance of a client here, and then run like client.register() or some shit?
 		client = new Client(username, serverAddressDefault, portDefault);
 		
-		client.registerUser(password);
+		boolean registerTrue = client.registerUser(password);
 		
-		// change the scene to the client dashboard
+		if (registerTrue) {
+			// change the scene to the client dashboard
+			System.out.println("User registration for " + username + " successful.");
+			return true;
+		} else {
+			// error message
+			return false;
+		}
+		
 	}
 	
-	private void loginUser() {
+	private boolean loginUser() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException, ClassNotFoundException {
 		// read client id and password
+		String username = loginUsernameField.getText();
+		String password = loginPasswordField.getText();
 		
-		// check password is correct. send encrypted password to server
+		client = new Client(username, serverAddressDefault, portDefault);
 		
+		boolean loginTrue = client.loginUser(username, password);
+		
+		if (loginTrue) {
+			System.out.println("Login successful");
+			// change scene to dashboard
+			return true;
+		} else {
+			System.out.println("Login error...");
+			return false;
+		}
 		
 		
 //		client = new Client(clientId, session.getSocket());

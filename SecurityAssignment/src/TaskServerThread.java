@@ -91,7 +91,7 @@ public class TaskServerThread extends Thread {
 	        	String password = codedArray[2];
 	        	registerUser(username, password);
 	        	
-	        	String toSendString = "Client " + username + " successfully registered.";
+	        	String toSendString = "1: Client " + username + " successfully registered.";
 	        	byte[] toSend = crypt.encrypt(toSendString);
 	        	
 	        	// send encrypted object to client
@@ -103,7 +103,22 @@ public class TaskServerThread extends Thread {
 
 	        } else if (codedArray[1].equals("LOGIN")) {
 	        	
+	        	String password = codedArray[2];
+	        	boolean loginTrue = loginUser(username, password);
+	        	String toSendString;
+	        	if (loginTrue) {
+	        		toSendString = "1: Client " + username + " successfully authenticated.";
+	        	} else {
+	        		toSendString = "0: Authentication failure";
+	        	}
 	        	
+	        	byte[] toSend = crypt.encrypt(toSendString);
+	        	
+	        	// send encrypted object to client
+	        	DataOutputStream dataOut = new DataOutputStream(socket.getOutputStream());
+	    		
+	    		dataOut.writeInt(toSend.length); // write length of the message
+	    		dataOut.write(toSend);           // write the message
 	        	
 
 	        } else {
@@ -168,6 +183,45 @@ public class TaskServerThread extends Thread {
 		}
 		
 	}
+	
+	public boolean loginUser(String username, String password) {
+		try {
+			Connection connection = connectToDB();
+			
+			// prepare sql command
+			Statement s = connection.createStatement();
+			String tableName = "clients";
+			String sqlCommand = "select password from " + tableName + " where username = '" + username + "'";
+//			s.executeUpdate(sqlCommand);
+//			s.execute(sqlCommand);
+			
+//			ResultSet results = s.getResultSet();
+//			System.out.println("results: " + results);
+
+			// execute query
+			ResultSet results = s.executeQuery(sqlCommand);
+			
+			// loop over result set and add to string to return
+			String dbPass = "";
+			while (results.next()) {
+				dbPass += results.getString("password");
+			}
+			if (dbPass.equals(password)) {
+				return true;
+			} else {
+				return false;
+			}
+			
+//			return results.toString();
+//			connection.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error: " + e.toString());
+//			return "";
+			return false;
+		}
+	}
+	
 	public void registerUser(String username, String password) {
 		try {
 			Connection connection = connectToDB();
@@ -178,6 +232,19 @@ public class TaskServerThread extends Thread {
 			String sqlCommand = "insert into " + tableName + " values ('" + username + "', '" + password + "')";
 			s.executeUpdate(sqlCommand);
 
+//			ResultSet results = s.executeQuery(sqlCommand);
+//			
+//			// loop over result set and add to string to return
+//			String dbPass = "";
+//			while (results.next()) {
+//				dbPass += results.getString("password");
+//			}
+//			if (dbPass.equals(password)) {
+//				return true;
+//			} else {
+//				return false;
+//			}
+			
 //			ResultSet results = ps.getResultSet();
 //			System.out.println("results: " + results);
 //			return results.toString();

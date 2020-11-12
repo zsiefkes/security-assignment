@@ -1,7 +1,10 @@
 Current task:
 - clients need to be saved to the database, too. argh. create a table for clients. easy, they just need their client id and a password, I don't think
 - okay I made a mess of this. taking a step back....
-- let's let clients sign up with a username, and we'll ask the database to please ensure the username is unique.
+
+- next up, need to be able to log in the user. the server needs to check the passwords match and return a 0 or 1 to confirm whether the passwords match. kay
+
+- after demonstration, we could add this in to the verifying that a user was successfully added to the database.
  
 
 Task list:
@@ -26,6 +29,7 @@ completed:
 	- server encrypts message to send back to client. (including the task list, which will also be delimited by semicolons)
 	- client decrypts message from server, prints to console
 	- clients have unique usernames and are stored with unique usernames in database. instead of client ids
+	- let's let clients sign up with a username, and we'll ask the database to please ensure the username is unique.
 	
 to do:
 
