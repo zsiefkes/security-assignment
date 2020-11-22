@@ -1,9 +1,6 @@
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
@@ -28,8 +25,7 @@ public class TaskServerThread extends Thread {
 		try {
 			System.out.println("A client request received at " + socket);
 
-			// open output stream to send response. gah we need to encrypt this, too
-			// let's just send a string for now. get the encryption working in one direction first
+			// open output stream to send unencrypted response. 
 			PrintWriter writeToSocket = new PrintWriter(socket.getOutputStream(), true);
 			
 			DataInputStream dataIn = new DataInputStream(socket.getInputStream());
@@ -39,7 +35,6 @@ public class TaskServerThread extends Thread {
 			String decrypted;
 			if(length > 0) {
 			    message = new byte[length];
-//			    dataIn.readFully(message, 0, message.length); // this didn't work
 			    // read the message
 			    dataIn.read(message);
 			    decrypted = crypt.decrypt(message);
@@ -123,7 +118,7 @@ public class TaskServerThread extends Thread {
 
 	        } else {
 	        	// send back to client faulty command message
-	        	writeToSocket.println("Command error; please provide CREATE or READ");
+	        	writeToSocket.println("Command error; please provide CREATE or READ or REGISTER or LOGIN");
 	        }
 	        
 	        
@@ -206,6 +201,7 @@ public class TaskServerThread extends Thread {
 			while (results.next()) {
 				dbPass += results.getString("password");
 			}
+			connection.close();
 			if (dbPass.equals(password)) {
 				return true;
 			} else {
@@ -213,7 +209,6 @@ public class TaskServerThread extends Thread {
 			}
 			
 //			return results.toString();
-//			connection.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Error: " + e.toString());
@@ -232,23 +227,7 @@ public class TaskServerThread extends Thread {
 			String sqlCommand = "insert into " + tableName + " values ('" + username + "', '" + password + "')";
 			s.executeUpdate(sqlCommand);
 
-//			ResultSet results = s.executeQuery(sqlCommand);
-//			
-//			// loop over result set and add to string to return
-//			String dbPass = "";
-//			while (results.next()) {
-//				dbPass += results.getString("password");
-//			}
-//			if (dbPass.equals(password)) {
-//				return true;
-//			} else {
-//				return false;
-//			}
-			
-//			ResultSet results = ps.getResultSet();
-//			System.out.println("results: " + results);
-//			return results.toString();
-//			connection.close();
+			connection.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Error: " + e.toString());

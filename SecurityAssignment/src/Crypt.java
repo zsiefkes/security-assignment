@@ -48,11 +48,7 @@ public class Crypt {
     	}
     }
     
-    
-    /**
-	* Step 1. Generate a DES key using KeyGenerator 
-    */
-    
+   
     public void generateKey() throws NoSuchAlgorithmException 
     {
         KeyGenerator keyGen = KeyGenerator.getInstance("DES");
@@ -110,7 +106,7 @@ public class Crypt {
             InvalidAlgorithmParameterException, IllegalBlockSizeException, 
             BadPaddingException
     {
-        Cipher desCipher = Cipher.getInstance("DES"); // Must specify the mode explicitly as most JCE providers default to ECB mode!!
+        Cipher desCipher = Cipher.getInstance("DES");
         desCipher.init(Cipher.ENCRYPT_MODE, this.getSecretkey());
         byte[] byteDataToEncrypt = strDataToEncrypt.getBytes();
         byte[] byteCipherText = desCipher.doFinal(byteDataToEncrypt);       
@@ -122,7 +118,7 @@ public class Crypt {
             InvalidAlgorithmParameterException, IllegalBlockSizeException, 
             BadPaddingException
     {        
-        Cipher desCipher = Cipher.getInstance("DES"); // Must specify the mode explicitly as most JCE providers default to ECB mode!!				
+        Cipher desCipher = Cipher.getInstance("DES");				
         desCipher.init(Cipher.DECRYPT_MODE, this.getSecretkey());        
         byte[] byteDecryptedText = desCipher.doFinal(strCipherText);        
         return new String(byteDecryptedText);

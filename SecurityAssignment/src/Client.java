@@ -3,14 +3,12 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -31,9 +29,6 @@ public class Client {
 		this.socket = new Socket(serverAddress, port);
 		this.crypt = new Crypt(keyFileName);
 		this.username = username;
-//		// assign unique client id and add Client to list of Clients
-//		this.clientId = clientList.size() + 1;
-//		clientList.add(this);
 	}
 	
 	public void createTask(String task) throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
@@ -62,7 +57,7 @@ public class Client {
 //		socket.close();
 	}
 	
-	public void readTasks() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
+	public String[] readTasks() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException {
 		// create and encrypt command string
 		String message = username + "; READ; ";
 		byte[] toSend = crypt.encrypt(message);
@@ -76,7 +71,7 @@ public class Client {
 		DataInputStream dataIn = new DataInputStream(socket.getInputStream());
 		
 		int length = dataIn.readInt(); // read length of incoming message
-//		System.out.println("length of response: " + length);
+		
 		byte[] response;
 		String decrypted;
 		if(length > 0) {
@@ -93,10 +88,12 @@ public class Client {
 		    for (String s : taskList) {
 		    	System.out.println(s);
 		    }
-		    
+		    System.exit(0);
+		    return taskList;
 		} else {
 			System.out.println("error no data received");
-			return;
+			String[] error = {"error"};
+			return error;
 		}
 		
 //		System.out.println(answer);
@@ -115,12 +112,6 @@ public class Client {
 		dataOut.writeInt(encText.length); // write length of the message
 		dataOut.write(encText);           // write the message
 		
-		// and now wait for a response...
-//		BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//		String answer = input.readLine();
-//		
-//		System.out.println(answer);
-//		System.exit(0);
 		// handle incoming response from server
 		DataInputStream dataIn = new DataInputStream(socket.getInputStream());
 		
@@ -157,12 +148,6 @@ public class Client {
 		dataOut.writeInt(encText.length); // write length of the message
 		dataOut.write(encText);           // write the message
 		
-		// and now wait for a response...
-//				BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//				String answer = input.readLine();
-//				
-//				System.out.println(answer);
-//				System.exit(0);
 		// handle incoming response from server
 		DataInputStream dataIn = new DataInputStream(socket.getInputStream());
 		
@@ -191,11 +176,15 @@ public class Client {
 	
     public static void main(String[] args) {
     	try {
-    		Client client = new Client("testuser", "127.0.0.1", 9090);
-//    		client.createTask("Test task 1");
+    		Client client = new Client("alex", "127.0.0.1", 9090);
+//    		client.createTask("speak to zach");
 //    		client.readTasks();
 		} catch (Exception e) {
 			System.out.println("Error: " + e);
 		}
     }
+
+	public String getUsername() {
+		return username;
+	}
 }

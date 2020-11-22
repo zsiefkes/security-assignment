@@ -1,13 +1,7 @@
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
-import java.util.Scanner;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -16,17 +10,14 @@ import javax.crypto.NoSuchPaddingException;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 public class ClientInterface extends Application {
@@ -35,15 +26,12 @@ public class ClientInterface extends Application {
 	private static int width = 400;
 	private static int height = 600;
 	
-	// session
-//	private Session session;
+	// server address and port
 	private static int portDefault = 9090;
 	private static String serverAddressDefault = "127.0.0.1";
+	private static int portNumber = portDefault;
+	private static String serverAddress = serverAddressDefault;
 	private Client client;
-	
-	// server address and port
-//	private String serverAddressDefault = "127.0.0.1";
-//	private int portDefault = 9090;
 	
 	// cryptographic 
 	private Crypt crypt;
@@ -65,50 +53,77 @@ public class ClientInterface extends Application {
 	private Button loginButton;
 	private TextField loginUsernameField;
 	private PasswordField loginPasswordField;
+	private Button logoutButton;
 	
 	// client dashboard
+	private TextField serverAddressField;
+	private TextField portNumberField;
+	private Button connectToServerButton;
 	private TextField newTaskField;
 	private Button submitTaskButton;
 	private Button retrieveTasksButton;
 	private Text taskList;
 	private VBox clientDashboard;
 	private Scene dashboardScene;
+	private Scene welcomeScene;
 	
 	// main window
 	private VBox welcomePane;
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		// i think, present register and login at the start
-		// and then create a client instance from this. good
 		
 		// buttons and texts
 		registerText = new Text(registerInstructionString);
 		registerUsernameField = new TextField();
+		registerUsernameField.setPromptText("Username");
 		registerPasswordField = new PasswordField();
+		registerPasswordField.setPromptText("Password");
 		registerButton = new Button("Register");
 		registerPane = new HBox();
 		registerPane.getChildren().addAll(registerUsernameField, registerPasswordField, registerButton);
 		
 		loginButton = new Button("Login");
 		loginUsernameField = new TextField();
+		loginUsernameField.setPromptText("Username");
 		loginPasswordField = new PasswordField();
+		loginPasswordField.setPromptText("Password");
 		loginPane = new HBox();
 		loginPane.getChildren().addAll(loginUsernameField, loginPasswordField, loginButton);
+		
+		logoutButton = new Button("Logout");
 		
 		welcomePane = new VBox();
 		welcomePane.getChildren().addAll(registerText, registerPane, loginPane);
 		welcomePane.setAlignment(Pos.CENTER);
-//		pane.setPadding(new Insets(20, 20, 20, 20));
 		
 		// client dashboard
+		Text serverInfoText = new Text("Currently connected to " + serverAddressDefault + ":" + portDefault);
+		serverAddressField = new TextField();
+		serverAddressField.setPromptText("Server IP address");
+		portNumberField = new TextField();
+		portNumberField.setPromptText("Local port number");
+		connectToServerButton = new Button("Connect");
+		
+		HBox serverControls = new HBox();
+		serverControls.getChildren().addAll(serverAddressField, portNumberField, connectToServerButton);
+		
 		newTaskField = new TextField();
+		newTaskField.setPromptText("Enter new task");
 		submitTaskButton = new Button("Add task");
 		retrieveTasksButton = new Button("View all tasks");
+		
+		HBox taskButtons = new HBox();
+		taskButtons.getChildren().addAll(submitTaskButton, retrieveTasksButton);
+		taskButtons.setAlignment(Pos.CENTER);
+		
 		taskList = new Text("Task List:");
 		clientDashboard = new VBox();
-		clientDashboard.getChildren().addAll(newTaskField, submitTaskButton, retrieveTasksButton, taskList);
+		clientDashboard.getChildren().addAll(logoutButton, serverControls, serverInfoText, newTaskField, taskButtons, taskList);
+		clientDashboard.setAlignment(Pos.CENTER);
 		dashboardScene = new Scene(clientDashboard, width, height);
+		welcomeScene = new Scene(welcomePane, width, height);
+		
 		
 		// -------------------------- set button event listeners --------------------------------- //
 		registerButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -120,7 +135,6 @@ public class ClientInterface extends Application {
 						primaryStage.setScene(dashboardScene);
 					}
 				} catch (IOException | InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException | ClassNotFoundException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -136,22 +150,73 @@ public class ClientInterface extends Application {
 				} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
 						| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
 						| IOException | ClassNotFoundException e) {
-					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		logoutButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				primaryStage.setScene(welcomeScene);
+			}
+		});
+		submitTaskButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				try {
+					submitTask();
+				} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+						| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
+						| IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		retrieveTasksButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				try {
+					retrieveTasks();
+				} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+						| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
+						| IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		connectToServerButton.setOnAction(new EventHandler<ActionEvent>() {
+			@Override
+			public void handle(ActionEvent arg0) {
+				String customServerAddress = serverAddressField.getText();
+				int customPortNumber = Integer.parseInt(portNumberField.getText());
+				String username = client.getUsername();
+				try {
+					client = new Client(username, customServerAddress, customPortNumber);
+					// update server details
+					serverAddress = customServerAddress;
+					portNumber = customPortNumber;
+				} catch (NoSuchAlgorithmException | ClassNotFoundException | IOException e) {
 					e.printStackTrace();
 				}
 			}
 		});
 		
-//		welcomePane.getChildren().add(e)
-		Scene welcomeScene = new Scene(welcomePane, width, height);
 		
-//		Scene scene = new Scene(welcomePane, width, height);
+
 		primaryStage.setTitle("Task Client");
-//		primaryStage.setScene(scene);
 		primaryStage.setScene(welcomeScene);
 		primaryStage.show();
 	}
 
+	private void submitTask() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
+		String task = newTaskField.getText();
+		client.createTask(task);
+	}
+	
+	private void retrieveTasks() throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
+		String[] taskList = client.readTasks();
+	}
+	
 	private boolean registerUser() throws IOException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, ClassNotFoundException {
 		// read username and password
 		String username = registerUsernameField.getText();
@@ -168,14 +233,16 @@ public class ClientInterface extends Application {
 			return false;
 		}
 		
-		// do we create an instance of a client here, and then run like client.register() or some shit?
-		client = new Client(username, serverAddressDefault, portDefault);
+		// create an instance of a client, and then run client.register()
+		client = new Client(username, serverAddress, portNumber);
 		
 		boolean registerTrue = client.registerUser(password);
 		
 		if (registerTrue) {
 			// change the scene to the client dashboard
 			System.out.println("User registration for " + username + " successful.");
+			registerUsernameField.clear();
+			registerPasswordField.clear();
 			return true;
 		} else {
 			// error message
@@ -189,21 +256,21 @@ public class ClientInterface extends Application {
 		String username = loginUsernameField.getText();
 		String password = loginPasswordField.getText();
 		
-		client = new Client(username, serverAddressDefault, portDefault);
+		client = new Client(username, serverAddress, portNumber);
 		
 		boolean loginTrue = client.loginUser(username, password);
 		
 		if (loginTrue) {
 			System.out.println("Login successful");
 			// change scene to dashboard
+			loginUsernameField.clear();
+			loginPasswordField.clear();
 			return true;
 		} else {
 			System.out.println("Login error...");
 			return false;
 		}
 		
-		
-//		client = new Client(clientId, session.getSocket());
 	}
 	
 	public static void main(String[] args) {
